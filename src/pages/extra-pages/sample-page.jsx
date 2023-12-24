@@ -30,12 +30,12 @@ const fetchData = async () => {
     }
     const fetchedData = await response.json();
     if (fetchedData.pred_1h && fetchedData.pred_1h.length > 0) {
-      const firstItem = fetchedData.pred_1h[0];
-      const average = (firstItem.open + firstItem.high + firstItem.low + firstItem.close) / 4;
+      const lastItem = fetchedData.pred_1h[fetchedData.pred_1h.length - 1];
+      const average = (lastItem.open + lastItem.high + lastItem.low + lastItem.close) / 4;
       const secondary = formatCurrency(average);
-      const change = Number(Number(firstItem.change).toFixed(2));
-      const content = formatDate(firstItem.datetime);
-      const data = [formatCurrency(firstItem.open), formatCurrency(firstItem.high), formatCurrency(firstItem.low), formatCurrency(firstItem.close)];
+      const change = Number(Number(lastItem.change).toFixed(2));
+      const content = formatDate(lastItem.datetime);
+      const data = [formatCurrency(lastItem.open), formatCurrency(lastItem.high), formatCurrency(lastItem.low), formatCurrency(lastItem.close)];
       setData({ secondary, content, data,change });
       setHasData(true);
     } else {
