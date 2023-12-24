@@ -29,14 +29,14 @@ const DefaultPage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const fetchedData = await response.json();
-      const processPredData = (predData) => {
+      const processPredData = (predData, timeField) => {
         if (predData && predData.length > 0) {
           const lastItem = predData[predData.length - 1];
           const average = (lastItem.open + lastItem.high + lastItem.low + lastItem.close) / 4;
           return {
             secondary: formatCurrency(average),
             change: Number(Number(lastItem.change).toFixed(2)),
-            content: formatDate(lastItem.datetime),
+            content: formatDate(lastItem[timeField]),
             data: [formatCurrency(lastItem.open), formatCurrency(lastItem.high), formatCurrency(lastItem.low), formatCurrency(lastItem.close)],
           };
         } else {
@@ -44,8 +44,8 @@ const DefaultPage = () => {
         }
       };
       setData({
-        pred_1h: processPredData(fetchedData.pred_1h),
-        pred_1d: processPredData(fetchedData.pred_1d),
+        pred_1h: processPredData(fetchedData.pred_1h, 'datetime'),
+        pred_1d: processPredData(fetchedData.pred_1d, 'date'),
       });
       setHasData(true);
     } catch (error) {
