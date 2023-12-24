@@ -4,10 +4,10 @@ import { createContext } from 'react';
 // project import
 import config from 'config';
 import useLocalStorage from 'hooks/useLocalStorage';
-
 // initial state
 const initialState = {
   ...config,
+  onChangeSetToken: () => {},
   onChangeContainer: () => {},
   onChangeLocalization: () => {},
   onChangeMode: () => {},
@@ -24,6 +24,15 @@ const ConfigContext = createContext(initialState);
 
 function ConfigProvider({ children }) {
   const [config, setConfig] = useLocalStorage('mantis-react-js-config', initialState);
+  //const [selectedToken, setSelectedToken] = useLocalStorage('selectedToken', config.setToken);
+  //console.log(config.setToken);
+
+  const onChangeSetToken = (setToken) => {
+    setConfig({
+      ...config,
+      setToken: setToken
+    });
+  };
 
   const onChangeContainer = () => {
     setConfig({
@@ -85,6 +94,8 @@ function ConfigProvider({ children }) {
     <ConfigContext.Provider
       value={{
         ...config,
+        //setToken: preconfig.setToken,
+        onChangeSetToken, 
         onChangeContainer,
         onChangeLocalization,
         onChangeMode,

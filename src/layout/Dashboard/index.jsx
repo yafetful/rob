@@ -11,8 +11,8 @@ import Header from './Header';
 import Footer from './Footer';
 import HorizontalBar from './Drawer/HorizontalBar';
 import Loader from 'components/Loader';
-import Breadcrumbs from 'components/@extended/Breadcrumbs';
-import AuthGuard from 'utils/route-guard/AuthGuard';
+// import Breadcrumbs from 'components/@extended/Breadcrumbs';
+// import AuthGuard from 'utils/route-guard/AuthGuard';
 
 import useConfig from 'hooks/useConfig';
 import { handlerDrawerOpen, useGetMenuMaster } from 'api/menu';
@@ -42,7 +42,7 @@ const DashboardLayout = () => {
   if (menuMasterLoading) return <Loader />;
 
   return (
-    <AuthGuard>
+    // <AuthGuard>
       <Box sx={{ display: 'flex', width: '100%' }}>
         <Header />
         {!isHorizontal ? <Drawer /> : <HorizontalBar />}
@@ -59,13 +59,13 @@ const DashboardLayout = () => {
               flexDirection: 'column'
             }}
           >
-            <Breadcrumbs />
+            {/* <Breadcrumbs /> */}
             <Outlet />
             <Footer />
           </Container>
         </Box>
       </Box>
-    </AuthGuard>
+    // </AuthGuard>
   );
 };
 

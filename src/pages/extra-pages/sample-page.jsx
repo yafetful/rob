@@ -1,20 +1,134 @@
-// material-ui
-import { Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Grid, CircularProgress } from '@mui/material';
+import Share from '@mui/icons-material/Share';
+import RoundIconCard from 'components/cards/statistics/RoundIconCard';
 
-// project import
-import MainCard from 'components/MainCard';
 
-// ==============================|| SAMPLE PAGE ||============================== //
+const DefaultPage = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const SamplePage = () => (
-  <MainCard title="Sample Card">
-    <Typography variant="body2">
-      Lorem ipsum dolor sit amen, consenter nipissing eli, sed do elusion tempos incident ut laborers et doolie magna alissa. Ut enif ad
-      minim venice, quin nostrum exercitation illampu laborings nisi ut liquid ex ea commons construal. Duos aube grue dolor in reprehended
-      in voltage veil esse colum doolie eu fujian bulla parian. Exceptive sin ocean cuspidate non president, sunk in culpa qui officiate
-      descent molls anim id est labours.
-    </Typography>
-  </MainCard>
-);
+  const formatCurrency = (value) => {
+    let options = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    if (value < 1) {
+      options = { minimumFractionDigits: 8, maximumFractionDigits: 8 };
+    }
+    return `$${new Intl.NumberFormat('en-US', options).format(value)}`;
+  };
 
-export default SamplePage;
+  const formatDate = (datetime) => {
+    return new Date(datetime).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: 'numeric', minute: '2-digit', hour12: false });
+  };
+
+  const [hasData, setHasData] = useState(false);
+
+const fetchData = async () => {
+  try {
+    const response = await fetch('http://localhost:3008/predicted');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const fetchedData = await response.json();
+    if (fetchedData.pred_1h && fetchedData.pred_1h.length > 0) {
+      const firstItem = fetchedData.pred_1h[0];
+      const average = (firstItem.open + firstItem.high + firstItem.low + firstItem.close) / 4;
+      const secondary = formatCurrency(average);
+      const change = Number(Number(firstItem.change).toFixed(2));
+      const content = formatDate(firstItem.datetime);
+      const data = [formatCurrency(firstItem.open), formatCurrency(firstItem.high), formatCurrency(firstItem.low), formatCurrency(firstItem.close)];
+      setData({ secondary, content, data,change });
+      setHasData(true);
+    } else {
+      throw new Error('No data available');
+    }
+  } catch (error) {
+    console.error('Error during fetch:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  // Fetch data immediately
+  fetchData();
+
+  // Get the current date and time
+  const now = new Date();
+
+  // Calculate the time difference to the next hour
+  const diff = 60 * 60 * 1000 - (now.getMinutes() * 60 + now.getSeconds()) * 1000 + now.getMilliseconds();
+
+  // Fetch data after the time difference plus a small delay
+  const delay = 1 * 60 * 1000; // 1 minute times 60 seconds times 1000 milliseconds
+  const timeoutId = setTimeout(() => {
+    fetchData();
+
+    // Then fetch data every 30 seconds
+    const intervalId = setInterval(() => {
+      if (!hasData) {
+        fetchData();
+      } else {
+        // If data is fetched successfully, clear the interval
+        clearInterval(intervalId);
+      }
+    }, 30 * 1000); // 30 seconds times 1000 milliseconds
+
+    // Clear the interval after 5 minutes
+    setTimeout(() => {
+      clearInterval(intervalId);
+    }, 5 * 60 * 1000); // 5 minutes times 60 seconds times 1000 milliseconds
+
+    // Clear the interval when the component is unmounted
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, diff + delay);
+
+  // Clear the timeout when the component is unmounted
+  return () => {
+    clearTimeout(timeoutId);
+  };
+}, [hasData]);
+
+  if (loading) {
+    return <CircularProgress />;
+  }
+  console.log(data);
+  return (
+    <Grid container rowSpacing={4.5} columnSpacing={3}>
+      <Grid item xs={12} lg={4} sm={6}>
+        <RoundIconCard
+          primary="1-Hour Forecast"
+          secondary={data.secondary}
+          percentage={data.change}
+          content={data.content}
+          iconPrimary={Share}
+          color="primary.main"
+          bgcolor="primary.lighter"
+          data={data.data}
+          names={['Open', 'High', 'Low', 'Close']}
+          isLoss={data.change < 0 ? true : data.change > 0 ? false : null}
+        />
+      </Grid>
+    </Grid>
+    
+  );
+
+  // return (
+  //   // <Grid container rowSpacing={4.5} columnSpacing={3}>
+  //   //   <Grid item xs={12} lg={4} sm={6}>
+  //   //     <RoundIconCard
+  //   //       primary="price"
+  //   //       secondary={data.secondary}
+  //   //       content={data.content}
+  //   //       iconPrimary={Share}
+  //   //       color="primary.main"
+  //   //       bgcolor="primary.lighter"
+  //   //       data={data.data}
+  //   //     />
+  //   //   </Grid>
+  //   // </Grid>
+  // );
+};
+
+export default DefaultPage;

@@ -1,3 +1,5 @@
+// import { useContext } from 'react';
+// import { ConfigContext } from 'contexts/ConfigContext'; 
 import { RouterProvider } from 'react-router-dom';
 
 // project import
@@ -16,6 +18,8 @@ import { JWTProvider as AuthProvider } from './contexts/JWTContext';
 // ==============================|| APP - THEME, ROUTER, LOCAL ||============================== //
 
 const App = () => (
+  // const configValue = useContext(ConfigContext);
+  // console.log(configValue);
   <ThemeCustomization>
     {/* <RTLLayout> */}
     <Locales>

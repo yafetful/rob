@@ -29,7 +29,7 @@ import '@fontsource/public-sans/700.css';
 
 // project import
 import App from './App';
-// import { ConfigProvider } from 'contexts/ConfigContext';
+import { ConfigProvider } from 'contexts/ConfigContext';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -37,9 +37,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 // ==============================|| MAIN - REACT DOM RENDER ||============================== //
 
 root.render(
-  // <ConfigProvider>
-  <App />
-  // </ConfigProvider>
+  <ConfigProvider>
+    <App />
+  </ConfigProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

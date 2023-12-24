@@ -1,0 +1,6 @@
+{
+  "cryptocurrencies": [
+    { "value": "btc", "label": "BTC - USD", "name": "Bitcoin" },
+    { "value": "eth", "label": "ETH - USD", "name": "Ethereum" }
+  ]
+}
