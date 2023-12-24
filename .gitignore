@@ -25,6 +25,8 @@ yarn-debug.log*
 yarn-error.log*
 
 ecosystem.config.js
+package.json
+yarn.lock
 
 # Logs
 logs
