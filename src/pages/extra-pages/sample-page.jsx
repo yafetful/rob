@@ -24,7 +24,7 @@ const DefaultPage = () => {
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://159.203.136.188:3008/predicted');
+    const response = await fetch('https://159.203.136.188:3008/predicted');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -99,7 +99,7 @@ useEffect(() => {
       <Grid item xs={12} lg={4} sm={6}>
         <RoundIconCard
           primary="1-Hour Forecast"
-          secondary={data.secondary}
+          secondary={data ? data.secondary : ''}
           percentage={data.change}
           content={data.content}
           iconPrimary={Share}
