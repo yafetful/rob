@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Grid, CircularProgress } from '@mui/material';
 import Share from '@mui/icons-material/Share';
 import RoundIconCard from 'components/cards/statistics/RoundIconCard';
+import { ConfigContext } from 'contexts/ConfigContext';
 
 
 const DefaultPage = () => {
   const [data, setData] = useState(null);
+  const [liveData, setLiveData] = useState({});
+  const { setToken } = useContext(ConfigContext);
   const [loading, setLoading] = useState(true);
 
   const formatCurrency = (value) => {
@@ -54,6 +57,24 @@ const DefaultPage = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${setToken.toLowerCase()}usdt@kline_1m`);
+  
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setLiveData({
+        price: data.k.c,
+        open: data.k.o,
+        close: data.k.c,
+        high: data.k.h,
+        low: data.k.l,
+      });
+    };
+  
+    return () => {
+      ws.close();
+    };
+  }, [setToken]);
 
 useEffect(() => {
   // Fetch data immediately
@@ -103,6 +124,19 @@ useEffect(() => {
   console.log(data);
   return (
     <Grid container rowSpacing={4.5} columnSpacing={3}>
+      <Grid item xs={12} lg={4} sm={6}>
+  <RoundIconCard
+    primary="Current Price"
+    secondary={liveData.price ? formatCurrency(liveData.price) : ''}
+    content={formatDate(new Date())}
+    iconPrimary={Share}
+    color="primary.main"
+    bgcolor="primary.lighter"
+    data={[liveData.open, liveData.high, liveData.low, liveData.close].map(formatCurrency)}
+    names={['Open', 'High', 'Low', 'Close']}
+    isLoss={null}
+  />
+</Grid>
   <Grid item xs={12} lg={4} sm={6}>
     <RoundIconCard
       primary="1-Hour Forecast"
@@ -111,7 +145,7 @@ useEffect(() => {
       content={data.pred_1h.content}
       iconPrimary={Share}
       color="primary.main"
-      bgcolor="primary.lighter"
+      bgcolor={data.pred_1h.change > 0 ? "success.lighter" : data.pred_1h.change < 0 || Object.is(data.pred_1h.change, -0) ? "error.lighter" : "warning.lighter"}
       data={data.pred_1h.data}
       names={['Open', 'High', 'Low', 'Close']}
       isLoss={data.pred_1h.change < 0 ? true : data.pred_1h.change > 0 ? false : null}
@@ -125,7 +159,7 @@ useEffect(() => {
       content={data.pred_1d.content}
       iconPrimary={Share}
       color="primary.main"
-      bgcolor="primary.lighter"
+      bgcolor={data.pred_1d.change > 0 ? "success.lighter" : data.pred_1d.change < 0 || Object.is(data.pred_1d.change, -0) ? "error.lighter" : "warning.lighter"}
       data={data.pred_1d.data}
       names={['Open', 'High', 'Low', 'Close']}
       isLoss={data.pred_1d.change < 0 ? true : data.pred_1d.change > 0 ? false : null}
