@@ -24,7 +24,7 @@ const DefaultPage = () => {
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://localhost:3008/predicted');
+    const response = await fetch('http://159.203.136.188:3008/predicted');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
