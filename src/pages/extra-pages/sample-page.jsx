@@ -22,31 +22,38 @@ const DefaultPage = () => {
 
   const [hasData, setHasData] = useState(false);
 
-const fetchData = async () => {
-  try {
-    const response = await fetch('https://robustness.ai:3008/predicted');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const fetchedData = await response.json();
-    if (fetchedData.pred_1h && fetchedData.pred_1h.length > 0) {
-      const lastItem = fetchedData.pred_1h[fetchedData.pred_1h.length - 1];
-      const average = (lastItem.open + lastItem.high + lastItem.low + lastItem.close) / 4;
-      const secondary = formatCurrency(average);
-      const change = Number(Number(lastItem.change).toFixed(2));
-      const content = formatDate(lastItem.datetime);
-      const data = [formatCurrency(lastItem.open), formatCurrency(lastItem.high), formatCurrency(lastItem.low), formatCurrency(lastItem.close)];
-      setData({ secondary, content, data,change });
+  const fetchData = async () => {
+    try {
+      const response = await fetch('https://robustness.ai:3008/predicted');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const fetchedData = await response.json();
+      const processPredData = (predData) => {
+        if (predData && predData.length > 0) {
+          const lastItem = predData[predData.length - 1];
+          const average = (lastItem.open + lastItem.high + lastItem.low + lastItem.close) / 4;
+          return {
+            secondary: formatCurrency(average),
+            change: Number(Number(lastItem.change).toFixed(2)),
+            content: formatDate(lastItem.datetime),
+            data: [formatCurrency(lastItem.open), formatCurrency(lastItem.high), formatCurrency(lastItem.low), formatCurrency(lastItem.close)],
+          };
+        } else {
+          throw new Error('No data available');
+        }
+      };
+      setData({
+        pred_1h: processPredData(fetchedData.pred_1h),
+        pred_1d: processPredData(fetchedData.pred_1d),
+      });
       setHasData(true);
-    } else {
-      throw new Error('No data available');
+    } catch (error) {
+      console.error('Error during fetch:', error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Error during fetch:', error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 useEffect(() => {
   // Fetch data immediately
@@ -96,21 +103,35 @@ useEffect(() => {
   console.log(data);
   return (
     <Grid container rowSpacing={4.5} columnSpacing={3}>
-      <Grid item xs={12} lg={4} sm={6}>
-        <RoundIconCard
-          primary="1-Hour Forecast"
-          secondary={data ? data.secondary : ''}
-          percentage={data.change}
-          content={data.content}
-          iconPrimary={Share}
-          color="primary.main"
-          bgcolor="primary.lighter"
-          data={data.data}
-          names={['Open', 'High', 'Low', 'Close']}
-          isLoss={data.change < 0 ? true : data.change > 0 ? false : null}
-        />
-      </Grid>
-    </Grid>
+  <Grid item xs={12} lg={4} sm={6}>
+    <RoundIconCard
+      primary="1-Hour Forecast"
+      secondary={data.pred_1h ? data.pred_1h.secondary : ''}
+      percentage={data.pred_1h.change}
+      content={data.pred_1h.content}
+      iconPrimary={Share}
+      color="primary.main"
+      bgcolor="primary.lighter"
+      data={data.pred_1h.data}
+      names={['Open', 'High', 'Low', 'Close']}
+      isLoss={data.pred_1h.change < 0 ? true : data.pred_1h.change > 0 ? false : null}
+    />
+  </Grid>
+  <Grid item xs={12} lg={4} sm={6}>
+    <RoundIconCard
+      primary="1-Day Forecast"
+      secondary={data.pred_1d ? data.pred_1d.secondary : ''}
+      percentage={data.pred_1d.change}
+      content={data.pred_1d.content}
+      iconPrimary={Share}
+      color="primary.main"
+      bgcolor="primary.lighter"
+      data={data.pred_1d.data}
+      names={['Open', 'High', 'Low', 'Close']}
+      isLoss={data.pred_1d.change < 0 ? true : data.pred_1d.change > 0 ? false : null}
+    />
+  </Grid>
+</Grid>
     
   );
 
