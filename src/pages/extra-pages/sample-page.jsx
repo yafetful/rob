@@ -87,7 +87,7 @@ useEffect(() => {
   const diff = 60 * 60 * 1000 - (now.getMinutes() * 60 + now.getSeconds()) * 1000 + now.getMilliseconds();
 
   // Fetch data after the time difference plus a small delay
-  const delay = 1 * 60 * 1000; // 1 minute times 60 seconds times 1000 milliseconds
+  const delay = 6 * 60 * 1000; // 1 minute times 60 seconds times 1000 milliseconds
   const timeoutId = setTimeout(() => {
     fetchData();
 
